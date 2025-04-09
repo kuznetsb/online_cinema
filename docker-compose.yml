@@ -60,10 +60,6 @@ services:
 volumes:
   postgres_theater_data:
     driver: local
-  pgadmin_theater_data:
-    driver: local
-  minio_data:
-    driver: local
 
 networks:
   theater_network:
