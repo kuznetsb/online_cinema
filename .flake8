@@ -7,4 +7,4 @@ select = B,C,E,F,W,T4,B9,ANN,Q0,N8,VNE
 exclude = .venv
 extend-exclude =
     src/tests/*,
-    src/database/migrations/*
+    src/database/migration/*
