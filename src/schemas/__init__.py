@@ -8,3 +8,10 @@ from schemas.accounts import (
     TokenRefreshRequestSchema,
     TokenRefreshResponseSchema
 )
+from schemas.movies import (
+    MovieListResponseSchema,
+    MovieListItemSchema,
+    MovieDetailSchema,
+    MovieCreateSchema,
+    MovieUpdateSchema
+)
