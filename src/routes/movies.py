@@ -18,6 +18,7 @@ from schemas import (
     MovieCreateSchema,
     MovieUpdateSchema
 )
+from security.http import get_current_user
 
 router = APIRouter()
 
@@ -118,10 +119,11 @@ async def get_movie_list(
 )
 async def create_movie(
     movie_data: MovieCreateSchema,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    user: dict = Depends(get_current_user),
 ):
     """
-    Add a new movie to the database.
+    Add a new movie to the database. Only authenticated users can do this
 
     This endpoint allows the creation of a new movie with details such as
     name, release date, genres, actors, and languages. It automatically
@@ -131,6 +133,7 @@ async def create_movie(
     :type movie_data: MovieCreateSchema
     :param db: The SQLAlchemy async database session (provided via dependency injection).
     :type db: AsyncSession
+    :param user: The current user to create the movie in.
 
     :return: The created movie with all details.
     :rtype: MovieDetailSchema
@@ -235,6 +238,7 @@ async def get_movie_by_id(
 async def delete_movie(
     movie_id: int,
     db: AsyncSession = Depends(get_db),
+    user: dict = Depends(get_current_user),
 ):
     """
     Delete a specific movie by its ID.
@@ -246,6 +250,7 @@ async def delete_movie(
     :type movie_id: int
     :param db: The SQLAlchemy database session (provided via dependency injection).
     :type db: AsyncSession
+    :param user: The current user to delete the movie in.
 
     :raises HTTPException: Raises a 404 error if the movie with the given ID is not found.
 
@@ -297,6 +302,7 @@ async def update_movie(
     movie_id: int,
     movie_data: MovieUpdateSchema,
     db: AsyncSession = Depends(get_db),
+    user: dict = Depends(get_current_user),
 ):
     """
     Update a specific movie by its ID.
@@ -310,6 +316,7 @@ async def update_movie(
     :type movie_data: MovieUpdateSchema
     :param db: The SQLAlchemy database session (provided via dependency injection).
     :type db: AsyncSession
+    :param user: The current user to update the movie in.
 
     :raises HTTPException: Raises a 404 error if the movie with the given ID is not found.
 
