@@ -1,28 +1,26 @@
-from fastapi import Request, HTTPException, status
+from typing import Annotated
+
+from fastapi import HTTPException, status, Depends
+from fastapi.security import OAuth2PasswordBearer
+
+from config import get_jwt_auth_manager
+from exceptions import BaseSecurityError
+from security.interfaces import JWTAuthManagerInterface
 
 
-def get_token(request: Request) -> str:
-    """
-    Extracts the Bearer token from the Authorization header.
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/accounts/login/")
 
-    :param request: FastAPI Request object.
-    :return: Extracted token string.
-    :raises HTTPException: If Authorization header is missing or invalid.
-    """
-    authorization: str = request.headers.get("Authorization")
 
-    if not authorization:
+async def get_current_user(
+    token: Annotated[str, Depends(oauth2_scheme)],
+    jwt_manager: JWTAuthManagerInterface = Depends(get_jwt_auth_manager),
+):
+    try:
+        decoded_token = jwt_manager.decode_access_token(token)
+        user_id = decoded_token.get("user_id")
+    except BaseSecurityError as error:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Authorization header is missing"
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(error),
         )
-
-    scheme, _, token = authorization.partition(" ")
-
-    if scheme.lower() != "bearer" or not token:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid Authorization header format. Expected 'Bearer <token>'"
-        )
-
-    return token
+    return {"id": user_id}

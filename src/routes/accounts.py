@@ -1,4 +1,7 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -226,7 +229,7 @@ async def activate_account(
     },
 )
 async def login_user(
-    login_data: UserLoginRequestSchema,
+    login_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: AsyncSession = Depends(get_db),
     settings: BaseAppSettings = Depends(get_settings),
     jwt_manager: JWTAuthManagerInterface = Depends(get_jwt_auth_manager),
@@ -253,7 +256,7 @@ async def login_user(
             - 500 Internal Server Error if an error occurs during token creation.
     """
 
-    user = await get_user_by_email(db, login_data.email)
+    user = await get_user_by_email(db, login_data.username)
     if not user or not user.verify_password(login_data.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
